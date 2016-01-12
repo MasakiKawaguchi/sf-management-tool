@@ -1,0 +1,218 @@
+<project name="Sample usage of Salesforce Ant tasks" default="default" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:sfc="antlib:com.yutagithub.sforce.ci" xmlns:cv="antlib:com.SFManagementAntTask">
+
+    <property file="build.properties"/>
+    <property environment="env"/>
+    
+    <path id="classpath">
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    <path id="coverage-classpath">
+        <fileset dir="lib/wsdl" includes="*.jar"/>
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    <taskdef resource="com/SFManagementAntTask/antlib.xml" uri="antlib:com.SFManagementAntTask" classpathref="coverage-classpath" />
+    <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpathref="classpath" />
+    <!--<taskdef resource="com/yutagithub/sforce/ci/antlib.xml" uri="antlib:com.yutagithub.sforce.ci" classpathref="classpath" />-->
+    <!--<taskdef name="pmd" classname="com.villagechief.pmd.ant.PMDTask" classpathref="classpath" />-->
+
+    <target name="bulkRetrieve">
+      <sf:bulkRetrieve username="${sf.retrive.username}" password="${sf.retrive.password}" serverurl="${sf.retrive.serverurl}"
+         maxPoll="${sf.maxPoll}" retrieveTarget="${sf.pkgName}" metadataType="StaticResource" />
+    </target>
+    
+    <target name="retrieve">
+      <sf:retrieve username="${sf.retrive.username}" password="${sf.retrive.password}" serverurl="${sf.retrive.serverurl}"
+         maxPoll="${sf.maxPoll}" retrieveTarget="${sf.pkgName}" unpackaged="package.xml" />
+    </target>
+
+    <target name="deploy">
+      <sf:deploy username="${sf.deploy.username}" password="${sf.deploy.password}" serverurl="${sf.deploy.serverurl}" 
+          maxPoll="${sf.maxPoll}" deployRoot="${sf.pkgName}" rollbackOnError="false" ignoreWarnings="true" />
+    </target>
+
+    <!--<target name="coverage">
+        <sfc:deployForCI username="${sf.retrive.username}" password="${sf.retrive.password}" serverurl="${sf.retrive.serverurl}"
+             deployRoot="${sf.pkgName}" checkOnly="true" maxPoll="${sf.maxPoll}" rollbackOnError="true" testlevel="RunLocalTests" ignoreWarnings="true" />
+    </target>-->
+    
+    <target name="coverage" depends="jar">
+        <cv:coverage username="${sf.deploy.username}" password="${sf.deploy.password}" serverurl="${sf.deploy.serverurl}" pollWaitMillis="100000" 
+            exportExcel="true" srcRoot="${sf.pkgName}" />
+    </target>
+    
+    <target name="document" depends="jar">
+        <cv:document username="${sf.deploy.username}" password="${sf.deploy.password}" serverurl="${sf.deploy.serverurl}" pollWaitMillis="100000" 
+            srcRoot="${sf.pkgName}" />
+    </target>
+
+    <target name="jar">
+        <jar destfile="lib/sfcoverage_kawa.jar" >
+            <fileset dir="bin/classes" includes="**/*.*" />
+            <!--<fileset dir="src" includes="**/*.*" />-->
+            <manifest>
+                <attribute name="Application-Name" value="salesforce coverage tool"/>
+                <attribute name="Permissions" value="all-permissions"/>
+                <!-- Who is building this jar? -->
+                <attribute name="Built-By" value="${user.name}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean">
+      <delete dir="${sf.pkgName}"/>
+      <mkdir dir="${sf.pkgName}"/>
+      <delete dir="${git.target.dir}"/>
+      <mkdir dir="${git.target.dir}"/>
+    </target>
+
+    <!-- define git command -->
+    <macrodef name = "git">
+        <attribute name = "command" />
+        <attribute name = "dir" default = "" />
+        <element name = "args" optional = "true" />
+        <sequential>
+            <echo message = "git @{command}" />
+            <exec executable = "git" dir = "@{dir}" outputproperty = "gitlog">
+                <arg value = "@{command}" />
+                <args/>
+            </exec>
+            <echo message = "${gitlog}" />
+        </sequential>
+    </macrodef>
+
+    <!-- define git clone command -->
+    <macrodef name="git-revision">
+        <attribute name="output"/>
+        <sequential>
+        <exec executable="git" outputproperty="head">
+            <arg value="rev-parse"/>
+            <arg value="HEAD"/>
+        </exec>
+        <echo message="Found revision: ${head}"/>
+        <exec executable="git" outputproperty="dirty">
+            <arg value="diff"/>
+            <arg value="--shortstatt"/>
+        </exec>
+        <condition property="@{output}" value="${head}" else="${head} (dirty)">
+            <equals arg1="${dirty}" arg2=""/>
+        </condition>
+        </sequential>
+    </macrodef>
+    
+    <!-- git clone processing -->
+    <target name="clone" description="git repogitory is saved in local repogitory">
+        <git command = "clone">
+            <args>
+                <arg value = "${git.remote.url}" />
+                <arg value = "${git.target.dir}" />
+            </args>
+        </git>
+        <git command = "config" dir = "${git.target.dir}" >
+            <args>
+                <arg line="--global push.default matching" />
+            </args>
+        </git>
+    </target>
+
+    <!-- git pull processing -->
+    <target name="pull" description="git repogitory is saved in local repogitory">
+        <git command = "pull" dir = "${git.target.dir}" >
+            <args>
+                <arg value="origin" />
+                <arg value="${git.target.branch}:master"/>
+            </args>
+        </git>
+    </target>
+
+    <!-- git commit processing -->
+    <target name="commit" description="updated file push to remote repogitory">
+        <copy todir="${git.target.dir}/${sf.pkgName}" overwrite="yes" >
+            <fileset dir="${sf.pkgName}"/>
+        </copy>
+        <git command = "add" dir = "${git.target.dir}" >
+            <args>
+                <arg value="-A" />
+            </args>
+        </git>
+        <git command = "commit" dir = "${git.target.dir}" >
+            <args>
+                <arg value="-am 'CI Server Auto Save processing...'" />
+            </args>
+        </git>
+    </target>
+
+    <!-- git push processing -->
+    <target name="commitdetail" description="updated file push to remote repogitory">
+        <git command = "log" dir = "${git.target.dir}" >
+            <args>
+                <arg value="--stat" />
+            </args>
+        </git>
+    </target>
+    
+    <!-- git push processing -->
+    <target name="status" description="updated file push to remote repogitory">
+        <git command = "log" dir = "${git.target.dir}" >
+            <args>
+                <arg value="origin/${git.target.branch}..master" />
+            </args>
+        </git>
+    </target>
+
+    <!-- git push processing -->
+    <!--<target name="push" description="updated file push to remote repogitory" unless="pushflg">-->
+    <target name="push" description="updated file push to remote repogitory">
+        <echo message = "${gitlog}" />
+        <git command = "push" dir = "${git.target.dir}" >
+            <args>
+                <arg value="origin" />
+                <arg value="master:${git.target.branch}"/>
+            </args>
+        </git>
+    </target>
+    <target name="nopush" if="pushflg">
+        <echo message = "${gitlog}" />
+        <echo message = "nothing to push" />
+    </target>
+    <condition property="pushflg" >
+        <contains string="${gitlog}" substring="CI Server Auto Save processing..." />
+    </condition>
+
+    <target name="gitpush">
+        <antcall target="clone" />
+        <!--<antcall target="pull" />-->
+        <antcall target="commit" />
+        <antcall target="commitdetail" />
+        <antcall target="status" />
+        <antcall target="push" />
+        <!--<antcall target="nopush" />-->
+    </target>
+
+    <target name="sfsource_gitpush">
+        <antcall target="clean"/>
+        <!--<antcall target="bulkRetrieve"/>-->
+        <antcall target="retrieve"/>
+        <antcall target="gitpush"/>
+    </target>
+    
+    <target name="pmd">
+        <pmd rulesetfiles="terrasky_pmd_ruleset.xml" encoding="UTF-8">
+            <formatter type="xml" toFile="${coverage.dir}/sforceci/pmd_result.xml" />
+            <!--<formatter type="text" toConsole="true" />-->
+            <formatter type="html" toFile="${sf.pkgName}/pmd_report.html"/>
+            <fileset dir="${sf.pkgName}/classes">
+                <include name="**/*.cls" />
+            </fileset>
+        </pmd>
+    </target>
+
+    <target name="default">
+        <antcall target="clean"/>
+        <antcall target="retrieve"/>
+        <antcall target="export"/>
+        <!-- <antcall target="gitpush"/> -->
+        <!-- <antcall target="orverwrite"/> -->
+        <!-- <antcall target="excludeModule"/> -->
+        <!-- <antcall target="deploy"/> -->
+    </target>
+</project>

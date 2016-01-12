@@ -1,0 +1,4 @@
+<antlib>
+    <typedef name="coverage" classname="com.SFManagementAntTask.ant.task.ExportCoverageTask"/>
+    <typedef name="document" classname="com.SFManagementAntTask.ant.task.ExportDocumentTask"/>
+</antlib>
