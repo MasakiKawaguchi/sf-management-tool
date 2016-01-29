@@ -24,12 +24,8 @@ import com.SFManagementAntTask.common.Const;
 import com.SFManagementAntTask.tooling.dao.model.CoverageClass;
 import com.SFManagementAntTask.tooling.dao.model.ISFDto;
 import com.sforce.soap.tooling.ApexClassMember;
-import com.sforce.soap.tooling.Constructor;
-import com.sforce.soap.tooling.Method;
-import com.sforce.soap.tooling.Position;
 import com.sforce.soap.tooling.QueryResult;
 import com.sforce.soap.tooling.SObject;
-import com.sforce.soap.tooling.SymbolTable;
 import com.sforce.ws.ConnectionException;
 
 public class ApexClassDao {
@@ -41,11 +37,13 @@ public class ApexClassDao {
 	 * @return Apexメタ情報
 	 */
 	public static List<CoverageClass> findApexDetail() {
+
+		List<CoverageClass> cobjlist = new ArrayList<CoverageClass>();
 		String query = new StringBuffer()
 		        .append("SELECT ")
 		        .append(" id, Name, NamespacePrefix, ApiVersion, Status, BodyCrc, IsValid, Body,")
-		        .append(" LengthWithoutComments, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById,")
-		        .append(" SystemModstamp, SymbolTable")
+		        .append(" LengthWithoutComments, CreatedDate, CreatedById, CreatedBy.Name, LastModifiedDate, LastModifiedById,")
+		        .append(" LastModifiedBy.Name, SystemModstamp, SymbolTable")
 		        .append(" FROM ApexClass").toString();
 		QueryResult res = null;
 		try {
@@ -54,24 +52,24 @@ public class ApexClassDao {
 			log.error("[findApexDetail]", e);
 			new BuildException(e);
 		}
-		log.debug(">>>" + res.getEntityTypeName());
+		if (res == null) {
+			return cobjlist;
+		}
 		for (SObject obj : res.getRecords()) {
 			com.sforce.soap.tooling.ApexClass aobj = (com.sforce.soap.tooling.ApexClass) obj;
-			SymbolTable st = aobj.getSymbolTable();
-			log.debug("[Name] " + aobj.getName());
-			for (Constructor cobj : st.getConstructors()) {
-				Position pobj = cobj.getLocation();
-				log.debug("[Constructor:Line] " + pobj.getLine());
-			}
-			for (SymbolTable iobj : st.getInnerClasses()) {
-				//log.debug("[InnerClasses:Line] " + iobj);
-			}
-			for (Method mobj : st.getMethods()) {
-				Position pobj = mobj.getLocation();
-				log.debug("[Method:Line] " + pobj.getLine());
-			}
+			CoverageClass ccobj = new CoverageClass();
+			//log.debug("[findApexDetail]" + aobj.getName());
+			ccobj.setName(aobj.getName());
+			ccobj.setApiVersion(aobj.getApiVersion());
+			ccobj.setCreatedDate(aobj.getCreatedDate().getTime());
+			ccobj.setCreatedById(aobj.getCreatedById());
+			ccobj.setCreatedByName(aobj.getCreatedBy().getName());
+			ccobj.setLastModifiedDate(aobj.getLastModifiedDate().getTime());
+			ccobj.setLastModifiedById(aobj.getLastModifiedById());
+			ccobj.setLastModifiedByName(aobj.getLastModifiedBy().getName());
+			cobjlist.add(ccobj);
 		}
-		return null;
+		return cobjlist;
 	}
 
 	public static List<CoverageClass> parseApexClass() {

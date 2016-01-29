@@ -45,6 +45,7 @@ public class ExportCoverageTask extends SFAntTaskAbs {
 		}
 		if (isExportExcel()) {
 			service.exportCoverageReport(oobj);
+			service.exportUnitTestReport(oobj);
 		}
 
 		log.info("execute processing end...");

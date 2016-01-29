@@ -3,6 +3,7 @@ package com.SFManagementAntTask.tooling.dao.model;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CoverageClass implements ISFDto {
@@ -20,11 +21,25 @@ public class CoverageClass implements ISFDto {
 
 	private int numLinesCovered = 0;
 
+	private double apiVersion;
+
 	private int calcLocations = 0;
 
 	private int calcLinesCovered = 0;
 
 	private List<Line> coveredLines = new ArrayList<Line>();
+
+	private Date createdDate;
+
+	private String createdById;
+
+	private String createdByName;
+
+	private Date lastModifiedDate;
+
+	private String lastModifiedById;
+
+	private String lastModifiedByName;
 
 	// #################################
 	// ## REST
@@ -158,4 +173,61 @@ public class CoverageClass implements ISFDto {
 		}
 		return calcLinesCovered;
 	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getCreatedById() {
+		return createdById;
+	}
+
+	public void setCreatedById(String createdById) {
+		this.createdById = createdById;
+	}
+
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public String getLastModifiedById() {
+		return lastModifiedById;
+	}
+
+	public void setLastModifiedById(String lastModifiedById) {
+		this.lastModifiedById = lastModifiedById;
+	}
+
+	public String getCreatedByName() {
+		return createdByName;
+	}
+
+	public void setCreatedByName(String createdByName) {
+		this.createdByName = createdByName;
+	}
+
+	public String getLastModifiedByName() {
+		return lastModifiedByName;
+	}
+
+	public void setLastModifiedByName(String lastModifiedByName) {
+		this.lastModifiedByName = lastModifiedByName;
+	}
+
+	public double getApiVersion() {
+		return apiVersion;
+	}
+
+	public void setApiVersion(double apiVersion) {
+		this.apiVersion = apiVersion;
+	}
+
 }

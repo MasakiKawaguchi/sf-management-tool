@@ -82,6 +82,11 @@ public class UnitTestXmlWriter {
 				}
 				writer.writeXml("</testcase>", 8);
 			}
+			if (dto.getUTMethodlist().isEmpty()) {
+				writer.writeXml("<testcase>", 8);
+				writer.writeXml("<error>" + dto.getSystemout() + "</error>", 12);
+				writer.writeXml("</testcase>", 8);
+			}
 			writer.writeXml("<system-out><![CDATA[" + dto.getSystemout() + "]]></system-out>", 8);
 			writer.writeXml("<system-err><![CDATA[" + dto.getSystemerr() + "]]></system-err>", 8);
 			writer.writeXml("</testsuite>", 4);

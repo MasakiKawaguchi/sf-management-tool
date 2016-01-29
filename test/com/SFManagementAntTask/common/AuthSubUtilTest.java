@@ -33,48 +33,8 @@ public class AuthSubUtilTest {
 			} else {
 				System.out.println(line.getNum() + ": null");
 			}
+			Assert.assertTrue(line.getNum() == assertrow[i]);
 		}
-		Assert.assertEquals("" + cobj.getCoveredLines().get(0).getNum(), "38");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(1).getNum(), "39");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(2).getNum(), "40");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(3).getNum(), "41");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(4).getNum(), "43");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(5).getNum(), "44");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(6).getNum(), "46");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(7).getNum(), "47");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(8).getNum(), "48");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(9).getNum(), "50");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(10).getNum(), "52");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(11).getNum(), "53");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(12).getNum(), "54");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(13).getNum(), "55");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(14).getNum(), "57");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(15).getNum(), "61");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(16).getNum(), "65");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(17).getNum(), "69");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(18).getNum(), "70");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(19).getNum(), "71");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(20).getNum(), "74");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(21).getNum(), "78");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(22).getNum(), "82");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(23).getNum(), "86");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(24).getNum(), "87");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(25).getNum(), "88");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(26).getNum(), "95");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(27).getNum(), "100");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(28).getNum(), "101");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(29).getNum(), "102");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(30).getNum(), "103");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(31).getNum(), "104");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(32).getNum(), "108");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(33).getNum(), "109");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(34).getNum(), "110");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(35).getNum(), "112");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(36).getNum(), "115");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(37).getNum(), "118");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(38).getNum(), "120");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(39).getNum(), "121");
-		Assert.assertEquals("" + cobj.getCoveredLines().get(40).getNum(), "122");
 	}
 
 	private List<String> createTestData() {

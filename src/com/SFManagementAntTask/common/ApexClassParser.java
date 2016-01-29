@@ -49,7 +49,7 @@ public class ApexClassParser {
 	private boolean innerclassflg = false;
 
 	/** ブロックカウント */
-	private int blockcnt;
+	public int blockcnt;
 
 	/** テストメソッドフラグ */
 	private boolean testmethodflg;
@@ -85,9 +85,6 @@ public class ApexClassParser {
 		if (isStartCommentBlock(body)) {
 			commentflg = true;
 		}
-		if (existEndCommentBlock(body)) {
-			commentflg = false;
-		}
 		if (isTest(body) && !classflg) {
 			testclassflg = true;
 		}
@@ -115,32 +112,12 @@ public class ApexClassParser {
 		if (nextskipcnt == 0 && nextskipflg) {
 			nextskipflg = false;
 		}
-		if (isStartBlock(body)) {
-			++blockcnt;
-			if (nextskipcnt > 0) {
-				nextskipcnt = 0;
-				nextskipflg = true;
-			}
-			if (testmethodflg) {
-				++testmethodcnt;
-			}
+		incrementBlock(body);
+		decrementBlock(body);
+		if (existEndCommentBlock(body)) { // 最後に持ってくる
+			commentflg = false;
 		}
-		if (isEndBlock(body)) {
-			--blockcnt;
-			if (testmethodflg) {
-				--testmethodcnt;
-			}
-			if (testmethodcnt == 0) {
-				testmethodflg = false;
-			}
-			if (blockcnt == 0) {
-				classflg = false;
-				testclassflg = false;
-			}
-			if (blockcnt == 1) {
-				innerclassflg = false;
-			}
-		}
+		log.trace(linecnt + " - " + blockcnt + " - " + body);
 		/////////////////////
 		// 次へ
 		if (isSkepRow(body)) {
@@ -159,21 +136,22 @@ public class ApexClassParser {
 	 * @return 有り true | 無し false
 	 */
 	private Boolean isSkepRow(String body) {
-		log.debug("[line] " + aobj.getName() + " (" + linecnt + ") : "
-		        + testmethodflg + " , " + testclassflg + " , " + commentflg
-		        + " , " + existEndCommentBlock(body) + " , " + isEmptyBlock(body) + " , " + isClass(body)
-		        + " , " + isSkepMethod(body)
-		        + " , " + existDebuglog(body)
-		        + " , " + (isAnnotation(body) && blockcnt <= 1)
-		        + " , " + (isSkippingField(body) && (blockcnt == 1 || innerclassflg))
-		        //+ " , " + (nextskipcnt > 1 || nextskipflg)
-		        + " , (" + nextskipcnt + " , " + nextskipflg + ")"
-		        + " , " + (soqlcnt > 1 || soqlflg));
+		//		log.debug("[line] " + aobj.getName() + " (" + linecnt + ") : "
+		//		        + testmethodflg + " , " + testclassflg + " , " + commentflg
+		//		        + " , " + existEndCommentBlock(body) + " , " + isEmptyBlock(body) + " , " + isClass(body)
+		//		        + " , " + isSkepMethod(body)
+		//		        + " , " + existDebuglog(body)
+		//		        + " , " + (isAnnotation(body) && blockcnt <= 1)
+		//		        //		        + " , " + (isSkippingField(body) && (blockcnt == 1 || innerclassflg))
+		//		        + " , " + isSkippingField(body) + " ( " + blockcnt + " , " + innerclassflg + " ) "
+		//		        //+ " , " + (nextskipcnt > 1 || nextskipflg)
+		//		        + " , (" + nextskipcnt + " , " + nextskipflg + ")"
+		//		        + " , " + (soqlcnt > 1 || soqlflg));
 		return testmethodflg || testclassflg || commentflg
 		        || existEndCommentBlock(body) || isEmptyBlock(body) || isClass(body) || isSkepMethod(body)
 		        || existDebuglog(body)
 		        || (isAnnotation(body) && blockcnt <= 1)
-		        || (isSkippingField(body) && (blockcnt == 1 || innerclassflg))
+		        || (isSkippingField(body) && ((!innerclassflg && blockcnt == 1) || (innerclassflg && blockcnt == 2)))
 		        || (nextskipcnt > 1 || nextskipflg)
 		        || (soqlcnt > 1 || soqlflg);
 	}
@@ -202,7 +180,8 @@ public class ApexClassParser {
 	 * @return 有り true | 無し false
 	 */
 	private Boolean isSkepMethod(String body) {
-		return (isMatch(".*[ \t\\}]else[ \t\\{].*$", body) && !isMatch(".* if[ \t\\{].*$", body));
+		return (isMatch(".*[ \t\\}]else[ \t\\{].*$", body.toLowerCase()) && !isMatch(".*[ \t]if[ \t]*.*$", body.toLowerCase()))
+		        || isMatch(".*[ \t]+do[ \t].*$", body.toLowerCase());
 	}
 
 	/**
@@ -231,7 +210,7 @@ public class ApexClassParser {
 	 */
 	private Boolean existEndCommentBlock(String body) {
 
-		return isMatch("^.* \\**\\*\\/.*$", body);
+		return isMatch("^.*\\**\\*\\/.*$", body);
 	}
 
 	/**
@@ -261,7 +240,89 @@ public class ApexClassParser {
 	 */
 	private Boolean isStartBlock(String body) {
 
-		return isMatch("^.*\\{.*$", body);
+		return isMatch("^.*\\{[^']*$", body) && !commentflg;
+	}
+
+	/**
+	 * ブロック開始判別メソッド
+	 * @param body 行情報
+	 * @return 有り true | 無し false
+	 */
+	public void incrementBlock(String body) {
+
+		if (commentflg) {
+			return;
+		}
+		int tblockcnt = body.replaceAll("[^{]", "").length();
+		int position = -1;
+		for (int i = 0; i < tblockcnt; i++) {
+			position = body.indexOf("{", ++position);
+			String beforebody = body.substring(0, position);
+			String afterbody = body.substring(position + 1);
+			boolean beforeflg = beforebody.replaceAll("[^']", "").length() % 2 == 0;
+			boolean afterflg = afterbody.replaceAll("[^']", "").length() % 2 == 0;
+			if (!(!beforeflg && !afterflg)) {
+				increamentBlockCnt();
+			}
+		}
+	}
+
+	/**
+	 * ブロック終了判別メソッド
+	 * @param body 行情報
+	 * @return 有り true | 無し false
+	 */
+	public void decrementBlock(String body) {
+
+		if (commentflg) {
+			return;
+		}
+		int tblockcnt = body.replaceAll("[^}]", "").length();
+		int position = -1;
+		for (int i = 0; i < tblockcnt; i++) {
+			position = body.indexOf("}", ++position);
+			String beforebody = body.substring(0, position);
+			String afterbody = body.substring(position + 1);
+			boolean beforeflg = beforebody.replaceAll("[^']", "").length() % 2 == 0;
+			boolean afterflg = afterbody.replaceAll("[^']", "").length() % 2 == 0;
+			if (!(!beforeflg && !afterflg)) {
+				decreamentBlockCnt();
+			}
+		}
+	}
+
+	/**
+	 * ブロックカウントを増やす
+	 */
+	private void increamentBlockCnt() {
+		++blockcnt;
+		if (nextskipcnt > 0) {
+			nextskipcnt = 0;
+			nextskipflg = true;
+		}
+		if (testmethodflg) {
+			++testmethodcnt;
+		}
+	}
+
+	/**
+	 * ブロックカウントを増やす
+	 */
+	private void decreamentBlockCnt() {
+		--blockcnt;
+		if (testmethodflg) {
+			--testmethodcnt;
+		}
+		if (testmethodcnt == 0) {
+			testmethodflg = false;
+		}
+		if (blockcnt == 0) {
+			classflg = false;
+			testclassflg = false;
+		}
+		if (blockcnt == 1) {
+			innerclassflg = false;
+		}
 	}
 
 	/**
@@ -271,7 +332,7 @@ public class ApexClassParser {
 	 */
 	private Boolean isEndBlock(String body) {
 
-		return isMatch("^.*\\}.*$", body);
+		return isMatch("^[^']*\\}.*$", body) && !commentflg;
 	}
 
 	/**
@@ -341,7 +402,9 @@ public class ApexClassParser {
 	private Boolean isSkippingField(String body) {
 		return isMatch("^.*;.*$", body)
 		        && !isStartBlock(body)
-		        && !(existEqual(body) && !existStatic(body))
+		        && !existThrow(body)
+		        && !(existEqual(body) && existNew(body))
+		        && !(existPublic(body) && existStatic(body) && existEqual(body))
 		        && !isDML(body);
 	}
 
@@ -363,12 +426,39 @@ public class ApexClassParser {
 	}
 
 	/**
+	 * アクセス詞存在判別メソッド
+	 * @param body 行情報
+	 * @return 有り true | 無し false
+	 */
+	private Boolean existPublic(String body) {
+		return isMatch("^.*[ \t]*public .*$", body.toLowerCase());
+	}
+
+	/**
 	 * イコール存在判別メソッド
 	 * @param body 行情報
 	 * @return 有り true | 無し false
 	 */
 	private Boolean existStatic(String body) {
-		return isMatch("^.* static .*$", body.toLowerCase());
+		return isMatch("^.*[ \t]*static .*$", body.toLowerCase());
+	}
+
+	/**
+	 * イコール存在判別メソッド
+	 * @param body 行情報
+	 * @return 有り true | 無し false
+	 */
+	private Boolean existThrow(String body) {
+		return isMatch("^.*[ \t]*throw .*$", body.toLowerCase());
+	}
+
+	/**
+	 * イコール存在判別メソッド
+	 * @param body 行情報
+	 * @return 有り true | 無し false
+	 */
+	private Boolean existNew(String body) {
+		return isMatch("^.*[ \t]*new .*$", body.toLowerCase());
 	}
 
 	/**

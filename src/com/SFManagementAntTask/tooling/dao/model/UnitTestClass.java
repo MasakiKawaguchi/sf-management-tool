@@ -2,6 +2,7 @@ package com.SFManagementAntTask.tooling.dao.model;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -17,15 +18,15 @@ public class UnitTestClass implements ISFDto {
 
 	public UnitTestClass() {}
 
-	private String id;
+	// ################################################
+	// ## REST
+	// ################################################
 
 	private String name;
 
 	private String namespacePrefix;
 
-	private String status;
-
-	private Boolean isTest;
+	private boolean seeAllData;
 
 	private int errorCnt = 0;
 
@@ -33,21 +34,33 @@ public class UnitTestClass implements ISFDto {
 
 	private int failurCnt = 0;
 
+	private double aroundTime = 0.00;
+
+	private List<UnitTestMethod> methodlist;
+
+	private String systemout = "";
+
+	private String systemerr = "";
+
+	// ################################################
+	// ## REST
+	// ################################################
+
+	private String id;
+
+	private boolean isTest;
+
+	private String status;
+
 	private Date operationDate;
 
 	private Date startDate;
 
 	private Date endDate;
 
-	private List<UnitTestMethod> methodlist;
-
 	private String apexClassId;
 
 	private String parentJobId;
-
-	private String systemout = "";
-
-	private String systemerr = "";
 
 	public String getId() {
 		return id;
@@ -73,6 +86,21 @@ public class UnitTestClass implements ISFDto {
 		this.namespacePrefix = namespacePrefix;
 	}
 
+	public boolean getSeeAllData() {
+		return seeAllData;
+	}
+
+	public String getSeeAllDataStr() {
+		if (seeAllData) {
+			return "○";
+		}
+		return "×";
+	}
+
+	public void setSeeAllData(boolean seeAllData) {
+		this.seeAllData = seeAllData;
+	}
+
 	public String getStatus() {
 		return status;
 	}
@@ -93,6 +121,10 @@ public class UnitTestClass implements ISFDto {
 		return errorCnt;
 	}
 
+	public void incrementErrorCnt() {
+		++this.errorCnt;
+	}
+
 	public void addErrorCntforOutCome(String outcome) {
 		if (StringUtils.equals("Fail", outcome)) {
 			++this.errorCnt;
@@ -111,6 +143,10 @@ public class UnitTestClass implements ISFDto {
 		this.testCnt = testCnt;
 	}
 
+	public void incrementTestCnt() {
+		++this.testCnt;
+	}
+
 	public int getFailurCnt() {
 
 		return failurCnt;
@@ -118,6 +154,10 @@ public class UnitTestClass implements ISFDto {
 
 	public void setFailurCnt(int failurCnt) {
 		this.failurCnt = failurCnt;
+	}
+
+	public void incrementFailurCnt() {
+		++this.failurCnt;
 	}
 
 	public Date getOperationDate() {
@@ -138,12 +178,26 @@ public class UnitTestClass implements ISFDto {
 		this.operationDate = operationDate;
 	}
 
-	public Double getAroundTime() {
+	public double getAroundTime() {
+		return aroundTime;
+	}
 
-		if (startDate == null || endDate == null) {
-			return new Double(0);
-		}
-		return Double.longBitsToDouble(endDate.getTime()) - Double.longBitsToDouble(startDate.getTime());
+	public String getAroundTimeStr() {
+		Calendar calender = Calendar.getInstance();
+		calender.set(Calendar.HOUR_OF_DAY, 0);
+		calender.set(Calendar.MINUTE, 0);
+		calender.set(Calendar.SECOND, 0);
+		calender.set(Calendar.MILLISECOND, (int) aroundTime);
+		SimpleDateFormat sdf = new SimpleDateFormat("mm:ss SSS");
+		return sdf.format(calender.getTime());
+	}
+
+	public void setAroundTime(double aroundTime) {
+		this.aroundTime = aroundTime;
+	}
+
+	public void addAroundTime(double aroundTime) {
+		this.aroundTime += aroundTime;
 	}
 
 	public List<UnitTestMethod> getUTMethodlist() {
@@ -160,6 +214,13 @@ public class UnitTestClass implements ISFDto {
 	public void addMethodlist(UnitTestMethod method) {
 		if (this.methodlist == null) {
 			this.methodlist = new ArrayList<UnitTestMethod>();
+		}
+		addAroundTime(method.getAroundTime());
+		setSeeAllData(method.getSeeAllData());
+		setName(method.getName());
+		incrementTestCnt();
+		if (!method.getOutcome()) {
+			incrementErrorCnt();
 		}
 		this.methodlist.add(method);
 	}

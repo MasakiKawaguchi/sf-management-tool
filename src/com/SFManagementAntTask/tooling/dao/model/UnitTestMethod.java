@@ -1,5 +1,7 @@
 package com.SFManagementAntTask.tooling.dao.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,17 +15,17 @@ public class UnitTestMethod implements ISFDto {
 
 	private String name;
 
-	private Double aroundTime;
+	private double aroundTime;
 
 	private String methodName;
 
 	private String message;
 
-	private String outcome;
+	private boolean outcome;
 
 	private String stackTrace;
 
-	private Boolean seeAllData;
+	private boolean seeAllData;
 
 	// ##############################
 	// ## REST
@@ -51,14 +53,21 @@ public class UnitTestMethod implements ISFDto {
 		this.name = name;
 	}
 
-	public Double getAroundTime() {
-		if (aroundTime == null) {
-			return new Double(0);
-		}
+	public double getAroundTime() {
 		return aroundTime;
 	}
 
-	public void setAroundTime(Double aroundTime) {
+	public String getAroundTimeStr() {
+		Calendar calender = Calendar.getInstance();
+		calender.set(Calendar.HOUR_OF_DAY, 0);
+		calender.set(Calendar.MINUTE, 0);
+		calender.set(Calendar.SECOND, 0);
+		calender.set(Calendar.MILLISECOND, (int) aroundTime);
+		SimpleDateFormat sdf = new SimpleDateFormat("mm:ss SSS");
+		return sdf.format(calender.getTime());
+	}
+
+	public void setAroundTime(double aroundTime) {
 		this.aroundTime = aroundTime;
 	}
 
@@ -121,12 +130,27 @@ public class UnitTestMethod implements ISFDto {
 		this.asyncApexJobId = asyncApexJobId;
 	}
 
-	public String getOutcome() {
+	public boolean getOutcome() {
 		return outcome;
 	}
 
-	public void setOutcome(String outcome) {
+	public String getOutcomeStr() {
+		if (outcome) {
+			return "○";
+		}
+		return "×";
+	}
+
+	public void setOutcome(boolean outcome) {
 		this.outcome = outcome;
+	}
+
+	public void setOutcome(String outcome) {
+		if (StringUtils.equals(outcome, "SUCCESS")) {
+			this.outcome = true;
+			return;
+		}
+		this.outcome = false;
 	}
 
 	public String getQueueItemId() {

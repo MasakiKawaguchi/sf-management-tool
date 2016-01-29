@@ -31,6 +31,7 @@ public class BloggerServiceTest {
 			} else {
 				System.out.println(line.getNum() + ": null");
 			}
+			Assert.assertTrue(line.getNum() == assertrow[i]);
 		}
 		Assert.assertEquals("" + cobj.getCoveredLines().get(0).getNum(), "2");
 		Assert.assertEquals("" + cobj.getCoveredLines().get(1).getNum(), "3");

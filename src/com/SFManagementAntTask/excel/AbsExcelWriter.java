@@ -26,8 +26,22 @@ public abstract class AbsExcelWriter {
 
 	/** ヘッダー用タイトルスタイル */
 	protected HSSFCellStyle title_style;
+	protected HSSFCellStyle title_boldborder_top_left_style;
+	protected HSSFCellStyle title_boldborder_top_style;
+	protected HSSFCellStyle title_boldborder_top_right_style;
+	protected HSSFCellStyle title_boldborder_left_style;
+	protected HSSFCellStyle title_boldborder_right_style;
 	/** 一般スタイル（中央揃え） */
 	protected HSSFCellStyle contents_center_style;
+	protected HSSFCellStyle contents_center_date_style;
+	protected HSSFCellStyle contents_boldborder_left_style;
+	protected HSSFCellStyle contents_boldborder_right_style;
+	protected HSSFCellStyle contents_boldborder_left_bottom_style;
+	protected HSSFCellStyle contents_boldborder_bottom_style;
+	protected HSSFCellStyle contents_boldborder_bottom_date_style;
+	protected HSSFCellStyle contents_boldborder_bottom_right_style;
+	protected HSSFCellStyle contents_dotborder_right_style;
+	protected HSSFCellStyle contents_dotborder_left_style;
 	/** 一般スタイル（左揃え） */
 	protected HSSFCellStyle contents_border_top_left_bottom_right_style;
 	protected HSSFCellStyle contents_border_top_left_bottom_style;
@@ -44,21 +58,7 @@ public abstract class AbsExcelWriter {
 
 	protected void initilize() {
 		setTitlStyle();
-		HSSFFont contentsFont = writer.wb.createFont();
-		contentsFont.setColor(HSSFColor.BLACK.index);
-		contentsFont.setFontName("メイリオ");
-
-		// 一般スタイル（中央揃え）
-		contents_center_style = writer.wb.createCellStyle();
-		contents_center_style.setFont(contentsFont);
-		contents_center_style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
-		contents_center_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
-		contents_center_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-		contents_center_style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-		contents_center_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-		contents_center_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
-
-		setContentsStyle(contentsFont);
+		setContentsStyle();
 	}
 
 	/**
@@ -85,116 +85,52 @@ public abstract class AbsExcelWriter {
 	protected HSSFSheet headertile1_2(HSSFSheet sheet) {
 
 		// マージ処理
-		CellRangeAddress system_region = new CellRangeAddress(0, 1, 0, 14);
-		CellRangeAddress subsystem_region = new CellRangeAddress(0, 1, 15, 29);
-		CellRangeAddress function_region = new CellRangeAddress(0, 1, 30, 43);
-		CellRangeAddress createuser_region = new CellRangeAddress(0, 0, 44, 53);
-		CellRangeAddress createdate_region = new CellRangeAddress(1, 1, 44, 53);
-		CellRangeAddress updateuser_region = new CellRangeAddress(0, 0, 54, 63);
-		CellRangeAddress updatedate_region = new CellRangeAddress(1, 1, 54, 63);
-
-		sheet.addMergedRegion(system_region);
-		sheet.addMergedRegion(subsystem_region);
-		sheet.addMergedRegion(function_region);
-		sheet.addMergedRegion(createuser_region);
-		sheet.addMergedRegion(createdate_region);
-		sheet.addMergedRegion(updateuser_region);
-		sheet.addMergedRegion(updatedate_region);
+		margedRegion(sheet, 0, 1, 0, 14);
+		margedRegion(sheet, 0, 1, 15, 29);
+		margedRegion(sheet, 0, 1, 30, 43);
+		margedRegion(sheet, 0, 0, 44, 53);
+		margedRegion(sheet, 1, 1, 44, 53);
+		margedRegion(sheet, 0, 0, 54, 63);
+		margedRegion(sheet, 1, 1, 54, 63);
 
 		writer.wb.getFontAt((short) 0).setFontName("メイリオ");
 
 		HSSFRow row = sheet.createRow(0);
 		HSSFCell cell = row.createCell(0);
-		HSSFCellStyle style1 = writer.wb.createCellStyle();
-		style1.cloneStyleFrom(title_style);
-		style1.setBorderTop(HSSFCellStyle.BORDER_THICK);
-		style1.setBorderLeft(HSSFCellStyle.BORDER_THICK);
-		cell.setCellValue("システム名");
-		cell.setCellStyle(style1);
-
-		HSSFCellStyle style2 = writer.wb.createCellStyle();
-		style2.cloneStyleFrom(title_style);
-		style2.setBorderTop(HSSFCellStyle.BORDER_THICK);
-		for (int i = 1; i < 15; i++) {
+		cell.setCellStyle(title_boldborder_top_left_style);
+		for (int i = 1; i < 63; i++) {
 			cell = row.createCell(i);
-			cell.setCellStyle(style2);
-		}
-
-		cell = row.createCell(15);
-		cell.setCellValue("サブシステム名");
-		cell.setCellStyle(style2);
-
-		for (int i = 16; i < 30; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(style2);
-		}
-		cell = row.createCell(30);
-		cell.setCellValue("機能名");
-		cell.setCellStyle(style2);
-
-		for (int i = 31; i < 44; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(style2);
-		}
-		cell = row.createCell(44);
-		cell.setCellValue("作成者");
-		cell.setCellStyle(style2);
-
-		for (int i = 45; i < 54; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(style2);
-		}
-		cell = row.createCell(54);
-		cell.setCellValue("更新者");
-		cell.setCellStyle(style2);
-
-		for (int i = 55; i < 63; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(style2);
+			cell.setCellStyle(title_boldborder_top_style);
 		}
 		cell = row.createCell(63);
-		HSSFCellStyle style3 = writer.wb.createCellStyle();
-		style3.cloneStyleFrom(title_style);
-		style3.setBorderTop(HSSFCellStyle.BORDER_THICK);
-		style3.setBorderRight(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style3);
+		cell.setCellStyle(title_boldborder_top_right_style);
+
+		cell = row.getCell(0);
+		cell.setCellValue("システム名");
+		cell = row.getCell(15);
+		cell.setCellValue("サブシステム名");
+		cell = row.getCell(30);
+		cell.setCellValue("機能名");
+		cell = row.getCell(44);
+		cell.setCellValue("作成者");
+		cell = row.getCell(54);
+		cell.setCellValue("更新者");
 
 		row = sheet.createRow(1);
 		cell = row.createCell(0);
-		HSSFCellStyle style4 = writer.wb.createCellStyle();
-		style4.cloneStyleFrom(title_style);
-		style4.setBorderLeft(HSSFCellStyle.BORDER_THICK);
-		//style4.setBorderBottom(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style4);
+		cell.setCellStyle(title_boldborder_left_style);
 
-		HSSFCellStyle style5 = writer.wb.createCellStyle();
-		style5.cloneStyleFrom(title_style);
-		//style5.setBorderBottom(HSSFCellStyle.BORDER_THICK);
-		for (int i = 1; i < 44; i++) {
+		for (int i = 1; i < 63; i++) {
 			cell = row.createCell(i);
-			cell.setCellStyle(style5);
-		}
-
-		cell = row.createCell(44);
-		cell.setCellValue("作成日");
-		cell.setCellStyle(style5);
-		for (int i = 45; i < 54; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(style5);
-		}
-		cell = row.createCell(54);
-		cell.setCellValue("更新日");
-		cell.setCellStyle(style5);
-
-		for (int i = 55; i < 63; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(style5);
+			cell.setCellStyle(title_style);
 		}
 		cell = row.createCell(63);
-		HSSFCellStyle style6 = writer.wb.createCellStyle();
-		style6.cloneStyleFrom(title_style);
-		style6.setBorderRight(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style6);
+		cell.setCellStyle(title_boldborder_right_style);
+
+		cell = row.getCell(44);
+		cell.setCellValue("作成日");
+		cell = row.getCell(54);
+		cell.setCellValue("更新日");
 
 		return sheet;
 	}
@@ -207,33 +143,24 @@ public abstract class AbsExcelWriter {
 	 */
 	protected HSSFSheet headertile3_4(HSSFSheet sheet, String fnname) {
 
-		CellRangeAddress system_region = new CellRangeAddress(2, 3, 0, 14);
-		CellRangeAddress subsystem_region = new CellRangeAddress(2, 3, 15, 29);
-		CellRangeAddress function_region = new CellRangeAddress(2, 3, 30, 43);
-		CellRangeAddress createuser_region = new CellRangeAddress(2, 2, 44, 53);
-		CellRangeAddress createdate_region = new CellRangeAddress(3, 3, 44, 53);
-		CellRangeAddress updateuser_region = new CellRangeAddress(2, 2, 54, 63);
-		CellRangeAddress updatedate_region = new CellRangeAddress(3, 3, 54, 63);
-
-		sheet.addMergedRegion(system_region);
-		sheet.addMergedRegion(subsystem_region);
-		sheet.addMergedRegion(function_region);
-		sheet.addMergedRegion(createuser_region);
-		sheet.addMergedRegion(createdate_region);
-		sheet.addMergedRegion(updateuser_region);
-		sheet.addMergedRegion(updatedate_region);
+		margedRegion(sheet, 2, 3, 0, 14);
+		margedRegion(sheet, 2, 3, 15, 29);
+		margedRegion(sheet, 2, 3, 30, 43);
+		margedRegion(sheet, 2, 2, 44, 53);
+		margedRegion(sheet, 3, 3, 44, 53);
+		margedRegion(sheet, 2, 2, 54, 63);
+		margedRegion(sheet, 3, 3, 54, 63);
 
 		HSSFRow row = sheet.createRow(2);
 		HSSFCell cell = row.createCell(0);
-		HSSFCellStyle style1 = writer.wb.createCellStyle();
-		style1.cloneStyleFrom(contents_center_style);
-		style1.setBorderLeft(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style1);
-
+		cell.setCellStyle(contents_boldborder_left_style);
 		for (int i = 1; i < 63; i++) {
 			cell = row.createCell(i);
 			cell.setCellStyle(contents_center_style);
 		}
+		cell = row.createCell(63);
+		cell.setCellStyle(contents_boldborder_right_style);
+
 		cell = row.getCell(30);
 		cell.setCellValue(fnname);
 		cell = row.getCell(44);
@@ -241,43 +168,23 @@ public abstract class AbsExcelWriter {
 		cell = row.getCell(54);
 		cell.setCellValue("テラスカイ");
 
-		cell = row.createCell(63);
-		HSSFCellStyle style3 = writer.wb.createCellStyle();
-		style3.cloneStyleFrom(contents_center_style);
-		style3.setBorderRight(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style3);
-
 		row = sheet.createRow(3);
 		cell = row.createCell(0);
-		HSSFCellStyle style4 = writer.wb.createCellStyle();
-		style4.cloneStyleFrom(contents_center_style);
-		style4.setBorderLeft(HSSFCellStyle.BORDER_THICK);
-		style4.setBorderBottom(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style4);
-
-		HSSFCellStyle style5 = writer.wb.createCellStyle();
-		style5.cloneStyleFrom(contents_center_style);
-		style5.setBorderBottom(HSSFCellStyle.BORDER_THICK);
+		cell.setCellStyle(contents_boldborder_left_bottom_style);
 		for (int i = 1; i < 63; i++) {
 			cell = row.createCell(i);
-			cell.setCellStyle(style5);
+			cell.setCellStyle(contents_boldborder_bottom_style);
 		}
+		cell = row.createCell(63);
+		cell.setCellStyle(contents_boldborder_bottom_right_style);
 
 		cell = row.getCell(44);
-		HSSFCellStyle style7 = cell.getCellStyle();
-		CreationHelper createHelper = writer.wb.getCreationHelper();
-		style7.setDataFormat(createHelper.createDataFormat().getFormat("yyyy/mm/dd"));
 		cell.setCellValue(new Date());
-		cell.setCellStyle(style7);
+		cell.setCellStyle(contents_boldborder_bottom_date_style);
 		cell = row.getCell(54);
 		cell.setCellValue(new Date());
-		cell.setCellStyle(style7);
-		cell = row.createCell(63);
-		HSSFCellStyle style6 = writer.wb.createCellStyle();
-		style6.cloneStyleFrom(contents_center_style);
-		style6.setBorderRight(HSSFCellStyle.BORDER_THICK);
-		style6.setBorderBottom(HSSFCellStyle.BORDER_THICK);
-		cell.setCellStyle(style6);
+		cell.setCellStyle(contents_boldborder_bottom_date_style);
+
 		return sheet;
 	}
 
@@ -296,9 +203,86 @@ public abstract class AbsExcelWriter {
 		title_style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
 		title_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
 		title_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+
+		title_boldborder_top_left_style = writer.wb.createCellStyle();
+		title_boldborder_top_left_style.cloneStyleFrom(title_style);
+		title_boldborder_top_left_style.setBorderTop(HSSFCellStyle.BORDER_THICK);
+		title_boldborder_top_left_style.setBorderLeft(HSSFCellStyle.BORDER_THICK);
+
+		title_boldborder_top_style = writer.wb.createCellStyle();
+		title_boldborder_top_style.cloneStyleFrom(title_style);
+		title_boldborder_top_style.setBorderTop(HSSFCellStyle.BORDER_THICK);
+
+		title_boldborder_top_right_style = writer.wb.createCellStyle();
+		title_boldborder_top_right_style.cloneStyleFrom(title_style);
+		title_boldborder_top_right_style.setBorderTop(HSSFCellStyle.BORDER_THICK);
+		title_boldborder_top_right_style.setBorderRight(HSSFCellStyle.BORDER_THICK);
+
+		title_boldborder_left_style = writer.wb.createCellStyle();
+		title_boldborder_left_style.cloneStyleFrom(title_style);
+		title_boldborder_left_style.setBorderLeft(HSSFCellStyle.BORDER_THICK);
+
+		title_boldborder_right_style = writer.wb.createCellStyle();
+		title_boldborder_right_style.cloneStyleFrom(title_style);
+		title_boldborder_right_style.setBorderRight(HSSFCellStyle.BORDER_THICK);
+
 	}
 
-	private void setContentsStyle(HSSFFont contentsFont) {
+	private void setContentsStyle() {
+
+		HSSFFont contentsFont = writer.wb.createFont();
+		contentsFont.setColor(HSSFColor.BLACK.index);
+		contentsFont.setFontName("メイリオ");
+
+		// 一般スタイル（中央揃え）
+		contents_center_style = writer.wb.createCellStyle();
+		contents_center_style.setFont(contentsFont);
+		contents_center_style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		contents_center_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
+		contents_center_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		contents_center_style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		contents_center_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		contents_center_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+
+		contents_center_date_style = writer.wb.createCellStyle();
+		contents_center_date_style.cloneStyleFrom(contents_center_style);
+		CreationHelper createHelper = writer.wb.getCreationHelper();
+		contents_center_date_style.setDataFormat(createHelper.createDataFormat().getFormat("yyyy/mm/dd"));
+
+		contents_boldborder_left_style = writer.wb.createCellStyle();
+		contents_boldborder_left_style.cloneStyleFrom(contents_center_style);
+		contents_boldborder_left_style.setBorderLeft(HSSFCellStyle.BORDER_THICK);
+
+		contents_boldborder_right_style = writer.wb.createCellStyle();
+		contents_boldborder_right_style.cloneStyleFrom(contents_center_style);
+		contents_boldborder_right_style.setBorderRight(HSSFCellStyle.BORDER_THICK);
+
+		contents_boldborder_left_bottom_style = writer.wb.createCellStyle();
+		contents_boldborder_left_bottom_style.cloneStyleFrom(contents_center_style);
+		contents_boldborder_left_bottom_style.setBorderLeft(HSSFCellStyle.BORDER_THICK);
+		contents_boldborder_left_bottom_style.setBorderBottom(HSSFCellStyle.BORDER_THICK);
+
+		contents_boldborder_bottom_style = writer.wb.createCellStyle();
+		contents_boldborder_bottom_style.cloneStyleFrom(contents_center_style);
+		contents_boldborder_bottom_style.setBorderBottom(HSSFCellStyle.BORDER_THICK);
+
+		contents_boldborder_bottom_date_style = writer.wb.createCellStyle();
+		contents_boldborder_bottom_date_style.cloneStyleFrom(contents_center_style);
+		contents_boldborder_bottom_date_style.setBorderBottom(HSSFCellStyle.BORDER_THICK);
+		contents_boldborder_bottom_date_style.setDataFormat(createHelper.createDataFormat().getFormat("yyyy/mm/dd"));
+
+		contents_boldborder_bottom_right_style = writer.wb.createCellStyle();
+		contents_boldborder_bottom_right_style.cloneStyleFrom(contents_center_style);
+		contents_boldborder_bottom_right_style.setBorderRight(HSSFCellStyle.BORDER_THICK);
+		contents_boldborder_bottom_right_style.setBorderBottom(HSSFCellStyle.BORDER_THICK);
+
+		contents_dotborder_right_style = writer.wb.createCellStyle();
+		contents_dotborder_right_style.cloneStyleFrom(contents_center_style);
+		contents_dotborder_right_style.setBorderRight(HSSFCellStyle.BORDER_DOTTED);
+
+		contents_dotborder_left_style = writer.wb.createCellStyle();
+		contents_dotborder_left_style.cloneStyleFrom(contents_center_style);
+		contents_dotborder_left_style.setBorderLeft(HSSFCellStyle.BORDER_NONE);
 
 		// 一般スタイル（左揃え）
 		contents_border_top_left_bottom_right_style = writer.wb.createCellStyle();
@@ -311,34 +295,22 @@ public abstract class AbsExcelWriter {
 		contents_border_top_left_bottom_right_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
 
 		contents_border_top_left_bottom_style = writer.wb.createCellStyle();
-		contents_border_top_left_bottom_style.setFont(contentsFont);
-		contents_border_top_left_bottom_style.setAlignment(HSSFCellStyle.ALIGN_LEFT);
-		contents_border_top_left_bottom_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
-		contents_border_top_left_bottom_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-		contents_border_top_left_bottom_style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-		contents_border_top_left_bottom_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		contents_border_top_left_bottom_style.cloneStyleFrom(contents_border_top_left_bottom_right_style);
+		contents_border_top_left_bottom_style.setBorderRight(HSSFCellStyle.BORDER_NONE);
 
 		contents_border_top_bottom_style = writer.wb.createCellStyle();
-		contents_border_top_bottom_style.setFont(contentsFont);
-		contents_border_top_bottom_style.setAlignment(HSSFCellStyle.ALIGN_LEFT);
-		contents_border_top_bottom_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
-		contents_border_top_bottom_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-		contents_border_top_bottom_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		contents_border_top_bottom_style.cloneStyleFrom(contents_border_top_left_bottom_right_style);
+		contents_border_top_bottom_style.setBorderRight(HSSFCellStyle.BORDER_NONE);
+		contents_border_top_bottom_style.setBorderLeft(HSSFCellStyle.BORDER_NONE);
 
 		contents_border_top_bottom_right_style = writer.wb.createCellStyle();
-		contents_border_top_bottom_right_style.setFont(contentsFont);
-		contents_border_top_bottom_right_style.setAlignment(HSSFCellStyle.ALIGN_LEFT);
-		contents_border_top_bottom_right_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
-		contents_border_top_bottom_right_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-		contents_border_top_bottom_right_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-		contents_border_top_bottom_right_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		contents_border_top_bottom_right_style.cloneStyleFrom(contents_border_top_left_bottom_right_style);
+		contents_border_top_bottom_right_style.setBorderLeft(HSSFCellStyle.BORDER_NONE);
 
 		contents_border_top_left_style = writer.wb.createCellStyle();
-		contents_border_top_left_style.setFont(contentsFont);
-		contents_border_top_left_style.setAlignment(HSSFCellStyle.ALIGN_LEFT);
-		contents_border_top_left_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
-		contents_border_top_left_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-		contents_border_top_left_style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		contents_border_top_left_style.cloneStyleFrom(contents_border_top_left_bottom_right_style);
+		contents_border_top_left_style.setBorderBottom(HSSFCellStyle.BORDER_NONE);
+		contents_border_top_left_style.setBorderRight(HSSFCellStyle.BORDER_NONE);
 
 		contents_border_top_style = writer.wb.createCellStyle();
 		contents_border_top_style.setFont(contentsFont);
@@ -372,6 +344,19 @@ public abstract class AbsExcelWriter {
 		contents_border_bottom_right_style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
 		contents_border_bottom_right_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
 		contents_border_bottom_right_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+	}
+
+	/**
+	 * セルマージメソッド
+	 * @param sheet シート
+	 * @param startrow 開始行
+	 * @param endrow 終了行
+	 * @param startcol 開始列
+	 * @param endcol 終了列
+	 */
+	protected void margedRegion(HSSFSheet sheet, int startrow, int endrow, int startcol, int endcol) {
+		CellRangeAddress target_region = new CellRangeAddress(startrow, endrow, startcol, endcol);
+		sheet.addMergedRegion(target_region);
 	}
 
 	/**

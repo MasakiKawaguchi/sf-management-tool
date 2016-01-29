@@ -4,7 +4,7 @@
     <property environment="env"/>
     
     <path id="classpath">
-        <fileset dir="lib" includes="*.jar"/>
+        <fileset dir="lib/ant" includes="*.jar"/>
     </path>
     <path id="coverage-classpath">
         <fileset dir="lib/wsdl" includes="*.jar"/>
@@ -13,7 +13,7 @@
     <taskdef resource="com/SFManagementAntTask/antlib.xml" uri="antlib:com.SFManagementAntTask" classpathref="coverage-classpath" />
     <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpathref="classpath" />
     <!--<taskdef resource="com/yutagithub/sforce/ci/antlib.xml" uri="antlib:com.yutagithub.sforce.ci" classpathref="classpath" />-->
-    <!--<taskdef name="pmd" classname="com.villagechief.pmd.ant.PMDTask" classpathref="classpath" />-->
+    <taskdef name="pmd" classname="com.villagechief.pmd.ant.PMDTask" classpathref="classpath" />
 
     <target name="bulkRetrieve">
       <sf:bulkRetrieve username="${sf.retrive.username}" password="${sf.retrive.password}" serverurl="${sf.retrive.serverurl}"
@@ -197,9 +197,8 @@
     
     <target name="pmd">
         <pmd rulesetfiles="terrasky_pmd_ruleset.xml" encoding="UTF-8">
-            <formatter type="xml" toFile="${coverage.dir}/sforceci/pmd_result.xml" />
+            <formatter type="xml" toFile="report/xml/pmd_result.xml" />
             <!--<formatter type="text" toConsole="true" />-->
-            <formatter type="html" toFile="${sf.pkgName}/pmd_report.html"/>
             <fileset dir="${sf.pkgName}/classes">
                 <include name="**/*.cls" />
             </fileset>

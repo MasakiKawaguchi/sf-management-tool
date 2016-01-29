@@ -55,7 +55,9 @@ public class ApexTestDao {
 		//request.setClasses(classes);
 		RunTestsResult res = null;
 		try {
+			log.info("runtest processing start... ");
 			res = ConnectionUtil.connectTooling().runTests(request);
+			log.info("execute processing end... " + res.getNumTestsRun());
 		} catch (ConnectionException e) {
 			log.error("[runTestsbyLocal]", e);
 			new BuildException(e);
@@ -137,15 +139,13 @@ public class ApexTestDao {
 				mobj.setStackTrace(fobj.getStackTrace());
 				//fobj.getType();
 				mobj.setSeeAllData(fobj.getSeeAllData());
-				mobj.setOutcome("×");
+				mobj.setOutcome(false);
 				aobj.addMethodlist(mobj);
-				aobj.setErrorCnt(aobj.getErrorCnt() + 1);
 			}
 			if (StringUtils.isBlank(fobj.getMethodName())) {
-				aobj.setFailurCnt(aobj.getFailurCnt() + 1);
+				aobj.incrementFailurCnt();
 			}
 			log.trace("[getNamespace] is " + fobj.getNamespace());
-			aobj.setTestCnt(aobj.getTestCnt() + 1);
 			if (StringUtils.isBlank(fobj.getMethodName())) {
 				aobj.setSystemout(fobj.getMessage());
 				//aobj.setSystemerr(fobj.getMessage());
@@ -158,20 +158,20 @@ public class ApexTestDao {
 			mobj.setMethodName(sobj.getMethodName());
 			mobj.setName(sobj.getName());
 			mobj.setAroundTime(sobj.getTime());
-			mobj.setOutcome("○");
+			mobj.setOutcome(true);
+			mobj.setSeeAllData(sobj.getSeeAllData());
 			//sobj.getNamespace();
-			//fobj.getType();
-			//fobj.getSeeAllData();
+			//sobj.getType();
+			// クラス設定
 			UnitTestClass aobj = cobjmap.get(sobj.getName());
 			if (aobj == null) {
 				aobj = new UnitTestClass();
 			}
 			log.trace("[getNamespace] is " + sobj.getNamespace());
-			aobj.setName(sobj.getName());
 			aobj.addMethodlist(mobj);
-			aobj.setTestCnt(aobj.getTestCnt() + 1);
 			cobjmap.put(sobj.getName(), aobj);
 		}
+		// パッケージ設定
 		Package pobj = new Package();
 		pobj.setName("classes");
 		for (UnitTestClass aobj : cobjmap.values()) {

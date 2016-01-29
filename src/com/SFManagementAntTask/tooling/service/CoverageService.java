@@ -8,9 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import com.SFManagementAntTask.common.Const;
 import com.SFManagementAntTask.common.FileReader;
+import com.SFManagementAntTask.common.PMDXmlPaser;
 import com.SFManagementAntTask.excel.CoverageExcelWriter;
+import com.SFManagementAntTask.excel.UnitTestExcelWriter;
 import com.SFManagementAntTask.tooling.dao.ApexClassDao;
 import com.SFManagementAntTask.tooling.dao.ApexTestDao;
+import com.SFManagementAntTask.tooling.dao.model.CoverageClass;
 import com.SFManagementAntTask.tooling.dao.model.ISFDto;
 import com.SFManagementAntTask.tooling.dao.model.Organization;
 import com.SFManagementAntTask.tooling.logic.AcessTestResultThread;
@@ -53,12 +56,27 @@ public class CoverageService {
 	 * @param objlist 組織情報
 	 */
 	public void exportCoverageReport(Organization objlist) {
+		List<CoverageClass> apexdetaillist = ApexClassDao.findApexDetail();
 		// ソースエクセルファイル作成
 		CoverageExcelWriter writer = new CoverageExcelWriter();
 		log.debug("[exportCoverageReport] SRC_ROOT is.. " + Const.SRC_ROOT);
 		FileReader.writeClasses(Const.SRC_ROOT, "classes", writer);
 		FileReader.writeClasses(Const.SRC_ROOT, "triggers", writer);
 		writer.writeCoverage(objlist);
+		writer.writePMD(new PMDXmlPaser().execute());
+		writer.writeClassInfo(apexdetaillist);
+		writer.finish();
+	}
+
+	/**
+	 * PMDレポート作成処理
+	 * @param objlist 組織情報
+	 */
+	public void exportUnitTestReport(Organization objlist) {
+		// ソースエクセルファイル作成
+		UnitTestExcelWriter writer = new UnitTestExcelWriter();
+		log.debug("[exportCoverageReport] SRC_ROOT is.. " + Const.SRC_ROOT);
+		writer.write(objlist);
 		writer.finish();
 	}
 

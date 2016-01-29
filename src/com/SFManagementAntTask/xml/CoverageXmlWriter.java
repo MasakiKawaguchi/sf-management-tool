@@ -59,9 +59,11 @@ public class CoverageXmlWriter {
 		writer.writeXml("</sources>", 4);
 		writer.writeXml("<packages>", 4);
 		for (Package packagedto : odto.getPackagelist()) {
-			writer.writeXml("<package name=\"" + packagedto.getName() + "\" line-rate=\"0.0\" branch-rate=\"0.0\" complexity=\"0.0\">", 8);
-			writeClassPart(packagedto);
-			writer.writeXml("</package>", 8);
+			if (!packagedto.getCVGClasslist().isEmpty()) {
+				writer.writeXml("<package name=\"" + packagedto.getName() + "\" line-rate=\"0.0\" branch-rate=\"0.0\" complexity=\"0.0\">", 8);
+				writeClassPart(packagedto);
+				writer.writeXml("</package>", 8);
+			}
 		}
 		writer.writeXml("</packages>", 4);
 		writer.writeXml("</coverage>", 0);
