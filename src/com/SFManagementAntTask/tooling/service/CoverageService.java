@@ -56,7 +56,8 @@ public class CoverageService {
 	 * @param objlist 組織情報
 	 */
 	public void exportCoverageReport(Organization objlist) {
-		List<CoverageClass> apexdetaillist = ApexClassDao.findApexDetail();
+		List<CoverageClass> apexClasslist = ApexClassDao.findApexClass();
+		List<CoverageClass> apexTriggerlist = ApexClassDao.findApexTrigger();
 		// ソースエクセルファイル作成
 		CoverageExcelWriter writer = new CoverageExcelWriter();
 		log.debug("[exportCoverageReport] SRC_ROOT is.. " + Const.SRC_ROOT);
@@ -64,7 +65,8 @@ public class CoverageService {
 		FileReader.writeClasses(Const.SRC_ROOT, "triggers", writer);
 		writer.writeCoverage(objlist);
 		writer.writePMD(new PMDXmlPaser().execute());
-		writer.writeClassInfo(apexdetaillist);
+		writer.writeClassInfo(apexClasslist);
+		writer.writeClassInfo(apexTriggerlist);
 		writer.finish();
 	}
 

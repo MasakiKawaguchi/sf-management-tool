@@ -41,8 +41,7 @@
     </target>
     
     <target name="document" depends="jar">
-        <cv:document username="${sf.deploy.username}" password="${sf.deploy.password}" serverurl="${sf.deploy.serverurl}" pollWaitMillis="100000" 
-            srcRoot="${sf.pkgName}" />
+        <cv:document username="${sf.deploy.username}" password="${sf.deploy.password}" serverurl="${sf.deploy.serverurl}" pollWaitMillis="100000" />
     </target>
 
     <target name="jar">

@@ -24,19 +24,21 @@ import com.SFManagementAntTask.common.Const;
 import com.SFManagementAntTask.tooling.dao.model.CoverageClass;
 import com.SFManagementAntTask.tooling.dao.model.ISFDto;
 import com.sforce.soap.tooling.ApexClassMember;
+import com.sforce.soap.tooling.ApexTrigger;
 import com.sforce.soap.tooling.QueryResult;
 import com.sforce.soap.tooling.SObject;
 import com.sforce.ws.ConnectionException;
 
 public class ApexClassDao {
 
+	/** ログ */
 	private final static Logger log = LoggerFactory.getLogger(ApexClassDao.class);
 
 	/**
 	 * Apexクラスのメタ情報取得処理
 	 * @return Apexメタ情報
 	 */
-	public static List<CoverageClass> findApexDetail() {
+	public static List<CoverageClass> findApexClass() {
 
 		List<CoverageClass> cobjlist = new ArrayList<CoverageClass>();
 		String query = new StringBuffer()
@@ -72,6 +74,53 @@ public class ApexClassDao {
 		return cobjlist;
 	}
 
+	/**
+	 * Apexクラスのメタ情報取得処理
+	 * @return Apexメタ情報
+	 */
+	public static List<CoverageClass> findApexTrigger() {
+
+		List<CoverageClass> cobjlist = new ArrayList<CoverageClass>();
+		String query = new StringBuffer()
+		        .append("SELECT ")
+		        .append(" id, Name,NamespacePrefix,Status,IsValid,ApiVersion,UsageIsBulk,")
+		        .append(" LengthWithoutComments,Body,bodyCrc,UsageBeforeInsert,UsageBeforeUpdate,")
+		        .append(" UsageBeforeDelete,UsageAfterInsert,UsageAfterUpdate,UsageAfterUndelete,")
+		        .append(" UsageAfterDelete,TableEnumOrId, CreatedDate, CreatedById, CreatedBy.Name,")
+		        .append(" LastModifiedDate, LastModifiedById,")
+		        .append(" LastModifiedBy.Name, SystemModstamp")
+		        .append(" FROM ApexTrigger").toString();
+		QueryResult res = null;
+		try {
+			res = ConnectionUtil.connectTooling().query(query);
+		} catch (ConnectionException e) {
+			log.error("[findApexDetail]", e);
+			new BuildException(e);
+		}
+		if (res == null) {
+			return cobjlist;
+		}
+		for (SObject obj : res.getRecords()) {
+			ApexTrigger aobj = (ApexTrigger) obj;
+			CoverageClass ccobj = new CoverageClass();
+			//log.debug("[findApexDetail]" + aobj.getName());
+			ccobj.setName(aobj.getName());
+			ccobj.setApiVersion(aobj.getApiVersion());
+			ccobj.setCreatedDate(aobj.getCreatedDate().getTime());
+			ccobj.setCreatedById(aobj.getCreatedById());
+			ccobj.setCreatedByName(aobj.getCreatedBy().getName());
+			ccobj.setLastModifiedDate(aobj.getLastModifiedDate().getTime());
+			ccobj.setLastModifiedById(aobj.getLastModifiedById());
+			ccobj.setLastModifiedByName(aobj.getLastModifiedBy().getName());
+			cobjlist.add(ccobj);
+		}
+		return cobjlist;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
 	public static List<CoverageClass> parseApexClass() {
 		File file = new File("meta/classes/ChangePasswordController.cls");
 		FileReader fr = null;
@@ -88,7 +137,7 @@ public class ApexClassDao {
 		int count = 0;
 		try {
 			while ((line = br.readLine()) != null) {
-				System.out.println(++count + "行目：" + line);
+				log.trace("[parseApexClass]" + ++count + "行目：" + line);
 			}
 		} catch (IOException e) {
 			log.error("[parseApexClass]", e);
@@ -173,6 +222,11 @@ public class ApexClassDao {
 		return dtolist;
 	}
 
+	/**
+	 * 
+	 * @param body
+	 * @return
+	 */
 	private static Boolean isTest(String body) {
 		if (StringUtils.indexOfAny(body, " testMethod ", " testmethod ", "@isTest", "@IsTest") >= 0) {
 			return true;
@@ -180,6 +234,10 @@ public class ApexClassDao {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static Map<String, CoverageClass> findMapApexClass() {
 		Map<String, CoverageClass> dtomap = new HashMap<String, CoverageClass>();
 		String res = ConnectionUtil.queryforGet(Const.Q_APEX_CLASS);
@@ -202,16 +260,16 @@ public class ApexClassDao {
 		try {
 			res = ConnectionUtil.connectTooling().query("Select Id,FullName,LastModifiedDate From ApexClassMember");
 		} catch (ConnectionException e) {
-			log.error("createPartnerCon", e);
+			log.error("[queryApexClassMember]", e);
 			new BuildException(e);
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
 		for (SObject obj : res.getRecords()) {
 			ApexClassMember mobj = (ApexClassMember) obj;
-			System.out.println(mobj.getId());
-			System.out.println(mobj.getFullName());
+			log.trace("[queryApexClassMember]" + mobj.getId());
+			log.trace("[queryApexClassMember]" + mobj.getFullName());
 			Date date = mobj.getLastModifiedDate().getTime();
-			System.out.println(format.format(date));
+			log.trace("[queryApexClassMember]" + format.format(date));
 		}
 	}
 

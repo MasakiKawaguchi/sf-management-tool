@@ -50,9 +50,7 @@ public class ApexTestDao {
 
 		RunTestsRequest request = new RunTestsRequest();
 		request.setAllTests(false);
-		//request.setNamespace(null);
-		//request.setPackages(new String[] { "Classes" });
-		//request.setClasses(classes);
+		request.setNamespace("");
 		RunTestsResult res = null;
 		try {
 			log.info("runtest processing start... ");

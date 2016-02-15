@@ -35,6 +35,7 @@ public class ConnectionUtil {
 		Const.REPORT_ROOT = ins.getReportRoot();
 		Const.SRC_ROOT = ins.getSrcRoot();
 		CONFIG = con.getConfig();
+		log.debug("login" + con);
 		return con;
 	}
 
@@ -56,6 +57,10 @@ public class ConnectionUtil {
 		return con;
 	}
 
+	/**
+	 * Soap用ToolingAPIコネクション処理
+	 * @return コネクション情報
+	 */
 	public static ToolingConnection connectTooling() {
 
 		ToolingConnection con = null;

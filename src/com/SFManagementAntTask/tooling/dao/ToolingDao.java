@@ -1,5 +1,8 @@
 package com.SFManagementAntTask.tooling.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.SFManagementAntTask.common.ConnectionUtil;
 import com.sforce.soap.tooling.ApexClassMember;
 import com.sforce.soap.tooling.ApexCodeCoverage;
@@ -15,6 +18,8 @@ import com.sforce.soap.tooling.SymbolTable;
 import com.sforce.ws.ConnectionException;
 
 public class ToolingDao extends Thread {
+
+	private final static Logger log = LoggerFactory.getLogger(ToolingDao.class);
 
 	public static void create() {
 		String classId = "";
@@ -114,18 +119,18 @@ public class ToolingDao extends Thread {
 						//no rows returned
 					}
 				} else {
-					System.out.println("Error: could not create ContainerAsyncRequest object");
-					System.out.println(" The error reported was: " +
+					log.debug("Error: could not create ContainerAsyncRequest object");
+					log.debug(" The error reported was: " +
 					        RequestResults[0].getErrors()[0].getMessage() + "\n");
 				}
 			} else {
-				System.out.println("Error: could not create Class Member ");
-				System.out.println(" The error reported was: " +
+				log.debug("Error: could not create Class Member ");
+				log.debug(" The error reported was: " +
 				        MembersResults[0].getErrors()[0].getMessage() + "\n");
 			}
 		} else {
-			System.out.println("Error: could not create MetadataContainer ");
-			System.out.println(" The error reported was: " +
+			log.debug("Error: could not create MetadataContainer ");
+			log.debug(" The error reported was: " +
 			        containerResults[0].getErrors()[0].getMessage() + "\n");
 		}
 	}
@@ -182,8 +187,8 @@ public class ToolingDao extends Thread {
 		if (actionResults[0].getSuccess()) {
 			// checkpoint created successfully
 		} else {
-			System.out.println("Error: could not create Checkpoint ");
-			System.out.println(" The error reported was: " +
+			log.debug("Error: could not create Checkpoint ");
+			log.debug(" The error reported was: " +
 			        actionResults[0].getErrors()[0].getMessage() + "\n");
 		}
 	}
@@ -194,6 +199,6 @@ public class ToolingDao extends Thread {
 		int[] covered = coverage.getCoveredLines();
 		int[] uncovered = coverage.getUncoveredLines();
 		int percent = covered.length / (covered.length + uncovered.length);
-		System.out.println("Total class coverage is " + percent + "%.");
+		log.debug("Total class coverage is " + percent + "%.");
 	}
 }

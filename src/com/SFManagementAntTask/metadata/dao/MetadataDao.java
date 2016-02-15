@@ -58,14 +58,14 @@ public class MetadataDao {
 		}
 		for (SaveResult r : results) {
 			if (r.isSuccess()) {
-				System.out.println("Created component: " + r.getFullName());
+				log.debug("Created component: " + r.getFullName());
 			} else {
 				System.out
 				        .println("Errors were encountered while creating "
 				                + r.getFullName());
 				for (com.sforce.soap.metadata.Error e : r.getErrors()) {
-					System.out.println("Error message: " + e.getMessage());
-					System.out.println("Status code: " + e.getStatusCode());
+					log.debug("Error message: " + e.getMessage());
+					log.debug("Status code: " + e.getStatusCode());
 				}
 			}
 		}
@@ -76,16 +76,16 @@ public class MetadataDao {
 			ReadResult readResult = ConnectionUtil.connectMetadata().readMetadata("CustomObject", new String[] {
 			        "MyCustomObject1__c", "MyCustomObject2__c" });
 			Metadata[] mdInfo = readResult.getRecords();
-			System.out.println("Number of component info returned: " + mdInfo.length);
+			log.debug("Number of component info returned: " + mdInfo.length);
 			for (Metadata md : mdInfo) {
 				if (md != null) {
 					CustomObject obj = (CustomObject) md;
-					System.out.println("Custom object full name: " + obj.getFullName());
-					System.out.println("Label: " + obj.getLabel());
-					System.out.println("Number of custom fields: " + obj.getFields().length);
-					System.out.println("Sharing model: " + obj.getSharingModel());
+					log.debug("Custom object full name: " + obj.getFullName());
+					log.debug("Label: " + obj.getLabel());
+					log.debug("Number of custom fields: " + obj.getFields().length);
+					log.debug("Sharing model: " + obj.getSharingModel());
 				} else {
-					System.out.println("Empty metadata.");
+					log.debug("Empty metadata.");
 				}
 			}
 		} catch (ConnectionException ce) {
@@ -111,14 +111,14 @@ public class MetadataDao {
 			SaveResult[] results = ConnectionUtil.connectMetadata().updateMetadata(new Metadata[] { co });
 			for (SaveResult r : results) {
 				if (r.isSuccess()) {
-					System.out.println("Updated component: " + r.getFullName());
+					log.debug("Updated component: " + r.getFullName());
 				} else {
 					System.out
 					        .println("Errors were encountered while updating "
 					                + r.getFullName());
 					for (com.sforce.soap.metadata.Error e : r.getErrors()) {
-						System.out.println("Error message: " + e.getMessage());
-						System.out.println("Status code: " + e.getStatusCode());
+						log.debug("Error message: " + e.getMessage());
+						log.debug("Status code: " + e.getStatusCode());
 					}
 				}
 			}
@@ -147,12 +147,12 @@ public class MetadataDao {
 			UpsertResult[] results = ConnectionUtil.connectMetadata().upsertMetadata(new Metadata[] { co });
 			for (UpsertResult r : results) {
 				if (r.isSuccess()) {
-					System.out.println("Success!");
+					log.debug("Success!");
 					if (r.isCreated()) {
-						System.out.println("Created component: "
+						log.debug("Created component: "
 						        + r.getFullName());
 					} else {
-						System.out.println("Updated component: "
+						log.debug("Updated component: "
 						        + r.getFullName());
 					}
 				} else {
@@ -160,8 +160,8 @@ public class MetadataDao {
 					        .println("Errors were encountered while upserting "
 					                + r.getFullName());
 					for (com.sforce.soap.metadata.Error e : r.getErrors()) {
-						System.out.println("Error message: " + e.getMessage());
-						System.out.println("Status code: " + e.getStatusCode());
+						log.debug("Error message: " + e.getMessage());
+						log.debug("Status code: " + e.getStatusCode());
 					}
 				}
 			}
@@ -177,14 +177,14 @@ public class MetadataDao {
 			                "MyCustomObject2__c" });
 			for (DeleteResult r : results) {
 				if (r.isSuccess()) {
-					System.out.println("Deleted component: " + r.getFullName());
+					log.debug("Deleted component: " + r.getFullName());
 				} else {
 					System.out
 					        .println("Errors were encountered while deleting "
 					                + r.getFullName());
 					for (com.sforce.soap.metadata.Error e : r.getErrors()) {
-						System.out.println("Error message: " + e.getMessage());
-						System.out.println("Status code: " + e.getStatusCode());
+						log.debug("Error message: " + e.getMessage());
+						log.debug("Status code: " + e.getStatusCode());
 					}
 				}
 			}
@@ -199,22 +199,22 @@ public class MetadataDao {
 			        "CustomObject", "MyCustomObject1__c", "MyCustomObject1New__c");
 			//			for (SaveResult r : results) {
 			//				if (r.isSuccess()) {
-			//					System.out.println("Renamed component: " + r.getName());
+			//					log.debug("Renamed component: " + r.getName());
 			//				} else {
-			//					System.out.println("Errors were encountered while renaming " + r.getName());
+			//					log.debug("Errors were encountered while renaming " + r.getName());
 			//					for (Error e : r.getErrors()) {
-			//						System.out.println("Error message: " + e.getMessage());
-			//						System.out.println("Status code: " + e.getStatusCode());
+			//						log.debug("Error message: " + e.getMessage());
+			//						log.debug("Status code: " + e.getStatusCode());
 			//					}
 			//				}
 			//			}
 			if (result.isSuccess()) {
-				System.out.println("Renamed component: " + result.getFullName());
+				log.debug("Renamed component: " + result.getFullName());
 			} else {
-				System.out.println("Errors were encountered while renaming " + result.getFullName());
+				log.debug("Errors were encountered while renaming " + result.getFullName());
 				for (com.sforce.soap.metadata.Error e : result.getErrors()) {
-					System.out.println("Error message: " + e.getMessage());
-					System.out.println("Status code: " + e.getStatusCode());
+					log.debug("Error message: " + e.getMessage());
+					log.debug("Status code: " + e.getStatusCode());
 				}
 			}
 		} catch (ConnectionException ce) {
@@ -243,7 +243,7 @@ public class MetadataDao {
 			} else {
 				sb.append("Failed to obtain metadata types.");
 			}
-			System.out.println(sb.toString());
+			log.debug(sb.toString());
 		} catch (ConnectionException ce) {
 			ce.printStackTrace();
 		}
@@ -260,7 +260,7 @@ public class MetadataDao {
 				sb.append("SoapType: " + field.getSoapType() + "\n");
 				sb.append("***************************************************\n");
 			}
-			System.out.println(sb.toString());
+			log.debug(sb.toString());
 		} catch (ConnectionException ce) {
 			ce.printStackTrace();
 		}
@@ -277,13 +277,13 @@ public class MetadataDao {
 			        new ListMetadataQuery[] { query }, asOfVersion);
 			if (lmr != null) {
 				for (FileProperties n : lmr) {
-					System.out.println("Component type: " + n.getType());
-					System.out.println("Component fullName: " + n.getFullName());
-					System.out.println("Component getManageableState: " + n.getManageableState());
-					System.out.println("Component getCreatedDate: " + n.getCreatedDate());
-					System.out.println("Component getCreatedByName: " + n.getCreatedByName());
-					System.out.println("Component getLastModifiedDate: " + n.getLastModifiedDate());
-					System.out.println("Component getLastModifiedByName: " + n.getLastModifiedByName());
+					log.debug("Component type: " + n.getType());
+					log.debug("Component fullName: " + n.getFullName());
+					log.debug("Component getManageableState: " + n.getManageableState());
+					log.debug("Component getCreatedDate: " + n.getCreatedDate());
+					log.debug("Component getCreatedByName: " + n.getCreatedByName());
+					log.debug("Component getLastModifiedDate: " + n.getLastModifiedDate());
+					log.debug("Component getLastModifiedByName: " + n.getLastModifiedByName());
 				}
 			}
 		} catch (ConnectionException ce) {

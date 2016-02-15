@@ -78,18 +78,33 @@ public class UnitTestXmlWriter {
 				        + "\" time=\"" + mdto.getAroundTime() + "\">", 8);
 				if (StringUtils.isNoneBlank(mdto.getMessage())) {
 					writer.writeXml("<error message=\"" + mdto.getMessage() + "\" type=\"" + ""
-					        + "\">" + mdto.getStackTrace() + "</error>", 12);
+					        + "\">" + escapeXMLTab(mdto.getStackTrace()) + "</error>", 12);
 				}
 				writer.writeXml("</testcase>", 8);
 			}
 			if (dto.getUTMethodlist().isEmpty()) {
 				writer.writeXml("<testcase>", 8);
-				writer.writeXml("<error>" + dto.getSystemout() + "</error>", 12);
+				writer.writeXml("<error>" + escapeXMLTab(dto.getSystemout()) + "</error>", 12);
 				writer.writeXml("</testcase>", 8);
 			}
 			writer.writeXml("<system-out><![CDATA[" + dto.getSystemout() + "]]></system-out>", 8);
 			writer.writeXml("<system-err><![CDATA[" + dto.getSystemerr() + "]]></system-err>", 8);
 			writer.writeXml("</testsuite>", 4);
 		}
+	}
+
+	/**
+	 * XMLタグエスケープ処理
+	 * @param msg メッセージ
+	 * @return エスケープメッセージ
+	 */
+	private String escapeXMLTab(String msg) {
+		if (StringUtils.isBlank(msg)) {
+			return "";
+		}
+		if (StringUtils.contains(msg, "<")) {
+			return "<![CDATA[" + msg + "]]>";
+		}
+		return msg;
 	}
 }

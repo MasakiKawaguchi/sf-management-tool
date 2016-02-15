@@ -72,7 +72,6 @@ public abstract class AbsExcelWriter {
 		for (int i = 0; i < 64; i++) {
 			sheet.setColumnWidth(i, 580);
 		}
-		headertile1_2(sheet);
 		headertile3_4(sheet, filename);
 		linecnt = 8;
 	}
@@ -95,28 +94,28 @@ public abstract class AbsExcelWriter {
 
 		writer.wb.getFontAt((short) 0).setFontName("メイリオ");
 
-		HSSFRow row = sheet.createRow(0);
-		HSSFCell cell = row.createCell(0);
+		HSSFRow row = getRow(sheet, 0);
+		HSSFCell cell = getCell(row, 0);
 		cell.setCellStyle(title_boldborder_top_left_style);
 		for (int i = 1; i < 63; i++) {
-			cell = row.createCell(i);
+			cell = getCell(row, i);
 			cell.setCellStyle(title_boldborder_top_style);
 		}
-		cell = row.createCell(63);
+		cell = getCell(row, 63);
 		cell.setCellStyle(title_boldborder_top_right_style);
 
-		cell = row.getCell(0);
+		cell = getCell(row, 0);
 		cell.setCellValue("システム名");
-		cell = row.getCell(15);
+		cell = getCell(row, 15);
 		cell.setCellValue("サブシステム名");
-		cell = row.getCell(30);
+		cell = getCell(row, 30);
 		cell.setCellValue("機能名");
-		cell = row.getCell(44);
+		cell = getCell(row, 44);
 		cell.setCellValue("作成者");
-		cell = row.getCell(54);
+		cell = getCell(row, 54);
 		cell.setCellValue("更新者");
 
-		row = sheet.createRow(1);
+		row = getRow(sheet, 1);
 		cell = row.createCell(0);
 		cell.setCellStyle(title_boldborder_left_style);
 
@@ -127,9 +126,9 @@ public abstract class AbsExcelWriter {
 		cell = row.createCell(63);
 		cell.setCellStyle(title_boldborder_right_style);
 
-		cell = row.getCell(44);
+		cell = getCell(row, 44);
 		cell.setCellValue("作成日");
-		cell = row.getCell(54);
+		cell = getCell(row, 54);
 		cell.setCellValue("更新日");
 
 		return sheet;
@@ -143,51 +142,27 @@ public abstract class AbsExcelWriter {
 	 */
 	protected HSSFSheet headertile3_4(HSSFSheet sheet, String fnname) {
 
-		margedRegion(sheet, 2, 3, 0, 14);
-		margedRegion(sheet, 2, 3, 15, 29);
-		margedRegion(sheet, 2, 3, 30, 43);
-		margedRegion(sheet, 2, 2, 44, 53);
-		margedRegion(sheet, 3, 3, 44, 53);
-		margedRegion(sheet, 2, 2, 54, 63);
-		margedRegion(sheet, 3, 3, 54, 63);
-
-		HSSFRow row = sheet.createRow(2);
-		HSSFCell cell = row.createCell(0);
-		cell.setCellStyle(contents_boldborder_left_style);
-		for (int i = 1; i < 63; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(contents_center_style);
-		}
-		cell = row.createCell(63);
-		cell.setCellStyle(contents_boldborder_right_style);
-
-		cell = row.getCell(30);
+		HSSFRow row = getRow(sheet, 2);
+		HSSFCell cell = null;
+		cell = getCell(row, 30);
 		cell.setCellValue(fnname);
-		cell = row.getCell(44);
+		cell = getCell(row, 44);
 		cell.setCellValue("テラスカイ");
-		cell = row.getCell(54);
+		cell = getCell(row, 54);
 		cell.setCellValue("テラスカイ");
-
-		row = sheet.createRow(3);
-		cell = row.createCell(0);
-		cell.setCellStyle(contents_boldborder_left_bottom_style);
-		for (int i = 1; i < 63; i++) {
-			cell = row.createCell(i);
-			cell.setCellStyle(contents_boldborder_bottom_style);
-		}
-		cell = row.createCell(63);
-		cell.setCellStyle(contents_boldborder_bottom_right_style);
-
-		cell = row.getCell(44);
+		row = getRow(sheet, 3);
+		cell = getCell(row, 44);
 		cell.setCellValue(new Date());
-		cell.setCellStyle(contents_boldborder_bottom_date_style);
-		cell = row.getCell(54);
+		//cell.setCellStyle(contents_center_date_style);
+		cell = getCell(row, 54);
 		cell.setCellValue(new Date());
-		cell.setCellStyle(contents_boldborder_bottom_date_style);
-
+		//cell.setCellStyle(contents_center_date_style);
 		return sheet;
 	}
 
+	/**
+	 * タイトルセルスタイル初期化
+	 */
 	private void setTitlStyle() {
 		HSSFFont titleFont = writer.wb.createFont();
 		titleFont.setColor(HSSFColor.WHITE.index);
@@ -228,6 +203,9 @@ public abstract class AbsExcelWriter {
 
 	}
 
+	/**
+	 * コンテンツセルスタイル初期化
+	 */
 	private void setContentsStyle() {
 
 		HSSFFont contentsFont = writer.wb.createFont();
@@ -357,6 +335,34 @@ public abstract class AbsExcelWriter {
 	protected void margedRegion(HSSFSheet sheet, int startrow, int endrow, int startcol, int endcol) {
 		CellRangeAddress target_region = new CellRangeAddress(startrow, endrow, startcol, endcol);
 		sheet.addMergedRegion(target_region);
+	}
+
+	/**
+	 * 行取得処理
+	 * @param sheet シート
+	 * @param rownum 行
+	 * @return 行情報
+	 */
+	protected HSSFRow getRow(HSSFSheet sheet, int rownum) {
+		HSSFRow row = sheet.getRow(rownum);
+		if (row == null) {
+			row = sheet.createRow(rownum);
+		}
+		return row;
+	}
+
+	/**
+	 * 行取得処理
+	 * @param sheet シート
+	 * @param rownum 行
+	 * @return 行情報
+	 */
+	protected HSSFCell getCell(HSSFRow row, int cellnum) {
+		HSSFCell cell = row.getCell(cellnum);
+		if (cell == null) {
+			cell = row.createCell(cellnum);
+		}
+		return cell;
 	}
 
 	/**

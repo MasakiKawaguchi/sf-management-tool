@@ -35,13 +35,14 @@ public class FileReader {
 		String line;
 		try {
 			while ((line = br.readLine()) != null) {
-				//log.debug(++count + "行：" + line);
 				cobj.writeSource(line);
 			}
 		} catch (IOException e) {
 			log.error("[parseApexClass]", e);
 			new BuildException(e);
 		}
+
+		cobj.writeSourceEnd();
 
 		//終了処理
 		try {
